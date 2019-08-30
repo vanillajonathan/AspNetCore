@@ -62,8 +62,6 @@ namespace System.Buffers
 
         private readonly object _disposeSync = new object();
 
-        public static AsyncLocal<int> _local = new AsyncLocal<int>();
-
         /// <summary>
         /// This default value passed in to Rent to use the default value for the pool.
         /// </summary>
@@ -90,12 +88,11 @@ namespace System.Buffers
             {
                 MemoryPoolThrowHelper.ThrowObjectDisposedException(MemoryPoolThrowHelper.ExceptionArgument.MemoryPool);
             }
-
+            
             if (_blocks.TryPop(out MemoryPoolBlock block))
             {
                 // block successfully taken from the stack - return it
                 block.Lease();
-                block.StreamIds.Add(_local.Value);
                 PoundArray.AsMemory().Slice(0, block.Memory.Length).CopyTo(block.Memory);
                 return block;
             }
@@ -103,8 +100,6 @@ namespace System.Buffers
             // no blocks available - grow the pool
             block = AllocateSlab();
             block.Lease();
-            block.StreamIds.Add(_local.Value);
-
             PoundArray.AsMemory().Slice(0, block.Memory.Length).CopyTo(block.Memory);
             return block;
         }
@@ -165,8 +160,6 @@ namespace System.Buffers
             Debug.Assert(block.IsLeased, $"Block being returned to pool twice: {block.Leaser}{Environment.NewLine}");
             block.IsLeased = false;
 #endif
-            block.StreamIds.Add(_local.Value);
-
             PercentArray.AsMemory().Slice(0, block.Memory.Length).CopyTo(block.Memory);
 
             if (!_isDisposed)

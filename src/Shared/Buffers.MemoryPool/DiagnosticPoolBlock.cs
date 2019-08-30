@@ -4,6 +4,7 @@
 using System.Threading;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 namespace System.Buffers
 {
@@ -25,6 +26,8 @@ namespace System.Buffers
         private readonly object _syncObj = new object();
         private bool _isDisposed;
         private int _pinCount;
+
+        public List<object> Contexts { get; set; } = new List<object>();
 
 
         /// <summary>
@@ -219,6 +222,10 @@ namespace System.Buffers
         public void Track()
         {
             Leaser = new StackTrace(false);
+            if (_pool.Context != null)
+            {
+                Contexts.Add(_pool.Context);
+            }
         }
     }
 }

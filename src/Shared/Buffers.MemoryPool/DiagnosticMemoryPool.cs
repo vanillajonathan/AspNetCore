@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.Buffers
@@ -32,6 +33,8 @@ namespace System.Buffers
         /// This default value passed in to Rent to use the default value for the pool.
         /// </summary>
         private const int AnySize = -1;
+
+        public AsyncLocal<object> Context = new AsyncLocal<object>(); 
 
         public DiagnosticMemoryPool(MemoryPool<byte> pool, bool allowLateReturn = false, bool rentTracking = false)
         {

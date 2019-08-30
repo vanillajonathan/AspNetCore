@@ -40,6 +40,7 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2
         private bool _disposed;
 
         private IMemoryOwner<byte> _fakeMemoryOwner;
+        private AsyncLocal<object> _currentContext;
 
         public Http2OutputProducer(
             int streamId,
@@ -57,6 +58,8 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2
             _log = log;
 
             var pipe = CreateDataPipe(pool);
+
+            _currentContext = (AsyncLocal<object>)pool.GetType().GetField("Context").GetValue(pool);
 
             _pipeWriter = pipe.Writer;
             _pipeReader = pipe.Reader;
@@ -267,6 +270,8 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2
                     return GetFakeMemory(sizeHint).Span;
                 }
 
+                _currentContext.Value = _streamId;
+
                 return _pipeWriter.GetSpan(sizeHint);
             }
         }
@@ -281,6 +286,8 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2
                 {
                     return GetFakeMemory(sizeHint);
                 }
+
+                _currentContext.Value = _streamId;
 
                 return _pipeWriter.GetMemory(sizeHint);
             }
@@ -318,7 +325,7 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2
                 }
 
                 _startedWritingDataFrames = true;
-                SlabMemoryPool._local.Value = _streamId;
+                _currentContext.Value = _streamId;
 
                 _pipeWriter.Write(data);
 
