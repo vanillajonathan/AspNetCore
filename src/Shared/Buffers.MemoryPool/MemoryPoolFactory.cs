@@ -7,7 +7,7 @@ namespace System.Buffers
     {
         public static MemoryPool<byte> Create()
         {
-            return new DiagnosticMemoryPool(CreateSlabMemoryPool(), rentTracking: true);
+            return new DiagnosticMemoryPool(CreateSlabMemoryPool());
         }
 
         public static MemoryPool<byte> CreateSlabMemoryPool()

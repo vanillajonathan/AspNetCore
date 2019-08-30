@@ -63,6 +63,10 @@ namespace System.Buffers
                 {
                     diagnosticPoolBlock.Track();
                 }
+                if (Context != null)
+                {
+                    diagnosticPoolBlock.Contexts.Add(Context);
+                }
                 _totalBlocks++;
                 _blocks.Add(diagnosticPoolBlock);
                 return diagnosticPoolBlock;

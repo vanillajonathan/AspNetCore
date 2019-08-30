@@ -222,10 +222,6 @@ namespace System.Buffers
         public void Track()
         {
             Leaser = new StackTrace(false);
-            if (_pool.Context != null)
-            {
-                Contexts.Add(_pool.Context);
-            }
         }
     }
 }
