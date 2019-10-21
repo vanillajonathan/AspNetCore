@@ -77,8 +77,7 @@ namespace Microsoft.AspNetCore.SignalR
             // Then set the keepAlive and handshakeTimeout values to the defaults in HubOptionsSetup when they were explicitly set to null.
 
             var supportedProtocols = _hubOptions.SupportedProtocols ?? _globalHubOptions.SupportedProtocols;
-            var additionalProtocols = _hubOptions.AdditionalHubProtocols ?? _globalHubOptions.AdditionalHubProtocols ?? Array.Empty<IHubProtocol>();
-            if ((supportedProtocols == null || supportedProtocols.Count == 0) && additionalProtocols.Count == 0)
+            if (supportedProtocols == null || supportedProtocols.Count == 0)
             {
                 throw new InvalidOperationException("There are no supported protocols");
             }
@@ -98,7 +97,7 @@ namespace Microsoft.AspNetCore.SignalR
             var connectionContext = new HubConnectionContext(connection, contextOptions, _loggerFactory);
 
             var resolvedSupportedProtocols = (supportedProtocols as IReadOnlyList<string>) ?? supportedProtocols.ToList();
-            if (!await connectionContext.HandshakeAsync(handshakeTimeout, resolvedSupportedProtocols, _protocolResolver, _userIdProvider, _enableDetailedErrors, additionalProtocols))
+            if (!await connectionContext.HandshakeAsync(handshakeTimeout, resolvedSupportedProtocols, _protocolResolver, _userIdProvider, _enableDetailedErrors))
             {
                 return;
             }
